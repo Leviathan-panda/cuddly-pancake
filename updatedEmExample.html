@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+
+<html>
+  <!-- GBA Emulator - mGBA / EmulatorJS -->
+
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+```
+<style>
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #000000;
+    color: #000000;
+  }
+
+  #container {
+    width: 100vw;
+    height: 100vh;
+    max-width: 100%;
+  }
+
+  #game {
+    width: 100%;
+    height: 100%;
+  }
+
+  #startButton {
+    display: block;
+    width: 160px;
+    height: 40px;
+    background-color: #4caf50;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    font-size: 16px;
+    margin: 20px auto;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: "Press Start 2P", cursive;
+    box-shadow: 0px 0px 10px 2px #000000;
+  }
+
+  #startButton:hover {
+    background-color: #45a049;
+  }
+</style>
+
+<link
+  href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
+  rel="stylesheet"
+>
+```
+
+  </head>
+
+  <body>
+
+```
+<div id="container">
+  <div id="game" style="display: none;"></div>
+  <button id="startButton">PLAY</button>
+</div>
+
+<script>
+  function startGame() {
+
+    document.getElementById("game").style.display = "block";
+    document.getElementById("startButton").style.display = "none";
+
+    /*
+     * EmulatorJS configuration
+     */
+
+    EJS_player = "#game";
+
+    // GBA emulator core
+    EJS_core = "mgba";
+
+    // Game ROM
+    EJS_gameUrl =
+      "https://raw.githubusercontent.com/Leviathan-panda/cuddly-pancake/main/PokeUV.gba";
+
+    // EmulatorJS data files
+    EJS_pathtodata =
+      "https://cdn.emulatorjs.org/stable/data/";
+
+    // Start after EmulatorJS loads
+    EJS_startOnLoaded = true;
+
+    // Black emulator theme
+    EJS_color = "#000000";
+
+    // Game title
+    EJS_gameName = "PokeUV";
+
+    // Use desktop-style controls/interface on Chromebook
+    EJS_browserMode = "desktop";
+
+    /*
+     * Load EmulatorJS
+     */
+    var script = document.createElement("script");
+
+    script.src =
+      "https://cdn.emulatorjs.org/stable/data/loader.js";
+
+    script.onload = function () {
+      console.log("EmulatorJS loaded.");
+    };
+
+    script.onerror = function () {
+      alert(
+        "EmulatorJS could not be loaded. Check your internet connection."
+      );
+    };
+
+    document.body.appendChild(script);
+  }
+
+  document
+    .getElementById("startButton")
+    .addEventListener("click", startGame);
+</script>
+```
+
+  </body>
+</html>
