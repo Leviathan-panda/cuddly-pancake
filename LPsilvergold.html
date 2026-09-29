@@ -1,0 +1,171 @@
+```html
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Pokémon HeartGold / SoulSilver</title>
+
+  <style>
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #000;
+      color: white;
+      font-family: "Press Start 2P", cursive;
+    }
+
+    #container {
+      width: 100vw;
+      height: 100vh;
+      max-width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+
+    #game {
+      width: 100%;
+      height: 100%;
+    }
+
+    #menu {
+      text-align: center;
+    }
+
+    #menu h1 {
+      font-size: 24px;
+      margin-bottom: 30px;
+    }
+
+    .gameButton {
+      display: block;
+      width: 280px;
+      height: 60px;
+      margin: 15px auto;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+
+      color: white;
+      font-family: "Press Start 2P", cursive;
+      font-size: 14px;
+
+      box-shadow: 0 0 10px 2px #000;
+    }
+
+    #heartgoldButton {
+      background-color: #d6a300;
+    }
+
+    #heartgoldButton:hover {
+      background-color: #f0bd00;
+    }
+
+    #soulsilverButton {
+      background-color: #9ca3af;
+    }
+
+    #soulsilverButton:hover {
+      background-color: #c0c5cc;
+    }
+  </style>
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
+    rel="stylesheet"
+  >
+</head>
+
+<body>
+
+  <!-- Game selection menu -->
+  <div id="menu">
+
+    <h1>Choose Your Game</h1>
+
+    <button
+      id="heartgoldButton"
+      class="gameButton"
+      onclick="startGame('heartgold')"
+    >
+      HEARTGOLD
+    </button>
+
+    <button
+      id="soulsilverButton"
+      class="gameButton"
+      onclick="startGame('soulsilver')"
+    >
+      SOULSILVER
+    </button>
+
+  </div>
+
+  <!-- Emulator -->
+  <div id="game" style="display: none;"></div>
+
+  <script>
+
+    function startGame(game) {
+
+      // Hide menu
+      document.getElementById("menu").style.display = "none";
+
+      // Show emulator
+      document.getElementById("game").style.display = "block";
+
+      /*
+       * Nintendo DS emulator
+       */
+      EJS_player = "#game";
+      EJS_core = "melonds";
+
+      /*
+       * Choose game
+       */
+      if (game === "heartgold") {
+
+        EJS_gameUrl =
+          "https://YOUR-DOMAIN.example/pokemon-heartgold.nds";
+
+        EJS_gameName = "Pokémon HeartGold";
+
+      } else if (game === "soulsilver") {
+
+        EJS_gameUrl =
+          "https://YOUR-DOMAIN.example/pokemon-soulsilver.nds";
+
+        EJS_gameName = "Pokémon SoulSilver";
+
+      }
+
+      /*
+       * EmulatorJS data
+       */
+      EJS_pathtodata =
+        "https://cdn.emulatorjs.org/stable/data/";
+
+      EJS_startOnLoaded = true;
+
+      EJS_color = "#000000";
+
+      EJS_browserMode = "desktop";
+
+      /*
+       * Load EmulatorJS
+       */
+      var script = document.createElement("script");
+
+      script.src =
+        "https://cdn.emulatorjs.org/stable/data/loader.js";
+
+      script.onload = function () {
+        console.log("
+```
