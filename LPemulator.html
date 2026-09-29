@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>GBA Emulator</title>
+
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background: #111;
+            font-family: Arial, sans-serif;
+        }
+
+        #menu {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+        }
+
+        #game {
+            width: 100%;
+            height: 100%;
+            display: none;
+        }
+
+        button,
+        input[type="file"] {
+            font-size: 18px;
+            padding: 12px 20px;
+        }
+
+        #status {
+            color: white;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="menu">
+
+        <h1 style="color:white;">GBA Emulator</h1>
+
+        <input
+            type="file"
+            id="romInput"
+            accept=".gba"
+        >
+
+        <button id="playButton">
+            PLAY
+        </button>
+
+        <div id="status">
+            Choose your .gba file first.
+        </div>
+
+    </div>
+
+    <div id="game"></div>
+
+    <script>
+        let romFile = null;
+        let romUrl = null;
+
+        const romInput = document.getElementById("romInput");
+        const playButton = document.getElementById("playButton");
+        const status = document.getElementById("status");
+
+        romInput.addEventListener("change", function () {
+            if (this.files.length === 0) {
+                romFile = null;
+                status.textContent = "No GBA file selected.";
+                return;
+            }
+
+            romFile = this.files[0];
+
+            status.textContent =
+                "Selected: " + romFile.name;
+        });
+
+        playButton.addEventListener("click", function () {
+
+            if (!romFile) {
+                status.textContent = "Please choose a .gba file first.";
+                return;
+            }
+
+            // Create a temporary browser URL for the local ROM.
+            romUrl = URL.createObjectURL(romFile);
+
+            // EmulatorJS configuration
+            window.EJS_player = "#game";
+            window.EJS_core = "mgba";
+            window.EJS_color = "#000000";
+
+            window.EJS_startOnLoaded = true;
+
+            window.EJS_gameUrl = romUrl;
+            window.EJS_gameName = romFile.name;
+
+            window.EJS_pathtodata =
+                "https://cdn.emulatorjs.org/stable/data/";
+
+            // Hide menu and show emulator
+            document.getElementById("menu").style.display = "none";
+            document.getElementById("game").style.display = "block";
+
+            // Load EmulatorJS
+            const script = document.createElement("script");
+
+            script.src =
+                "https://cdn.emulatorjs.org/stable/data/loader.js";
+
+            document.body.appendChild(script);
+        });
+    </script>
+
+</body>
+</html>
