@@ -7,124 +7,338 @@
     <title>GBA Emulator</title>
 
     <style>
-        html, body {
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
             margin: 0;
             padding: 0;
             width: 100%;
             height: 100%;
-            background: #111;
+            background: #181818;
             font-family: Arial, sans-serif;
         }
 
+        body {
+            color: white;
+        }
+
+        /* Main menu */
         #menu {
+            min-height: 100vh;
             width: 100%;
-            height: 100%;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            gap: 15px;
+            padding: 30px;
         }
 
-        #game {
+        #menu h1 {
+            margin: 0 0 10px 0;
+            font-size: 36px;
+        }
+
+        #menu p {
+            margin: 0 0 25px 0;
+            color: #bbbbbb;
+            text-align: center;
+        }
+
+        #fileBox {
+            width: min(500px, 90vw);
+            padding: 30px;
+            background: #252525;
+            border: 2px solid #444;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        #romInput {
             width: 100%;
-            height: 100%;
-            display: none;
+            margin-bottom: 20px;
         }
 
-        button,
-        input[type="file"] {
+        #fileName {
+            min-height: 24px;
+            margin-bottom: 20px;
+            color: #cccccc;
+            word-break: break-all;
+        }
+
+        #playButton {
+            width: 100%;
+            padding: 14px 20px;
+            border: none;
+            border-radius: 8px;
+            background: #4caf50;
+            color: white;
             font-size: 18px;
-            padding: 12px 20px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        #playButton:hover {
+            background: #43a047;
+        }
+
+        #playButton:disabled {
+            background: #555;
+            color: #999;
+            cursor: not-allowed;
         }
 
         #status {
-            color: white;
-            text-align: center;
+            margin-top: 18px;
+            color: #aaa;
+            font-size: 14px;
+        }
+
+        /* Emulator */
+        #game {
+            display: none;
+            width: 100vw;
+            height: 100vh;
+            background: black;
         }
     </style>
 </head>
 
 <body>
 
+    <!-- =========================
+         FILE SELECTION MENU
+         ========================= -->
+
     <div id="menu">
 
-        <h1 style="color:white;">GBA Emulator</h1>
+        <h1>GBA Emulator</h1>
 
-        <input
-            type="file"
-            id="romInput"
-            accept=".gba"
-        >
+        <p>
+            Choose a Game Boy Advance ROM from your computer.
+        </p>
 
-        <button id="playButton">
-            PLAY
-        </button>
+        <div id="fileBox">
 
-        <div id="status">
-            Choose your .gba file first.
+            <input
+                type="file"
+                id="romInput"
+                accept=".gba"
+            >
+
+            <div id="fileName">
+                No GBA file selected.
+            </div>
+
+            <button
+                id="playButton"
+                disabled
+            >
+                Launch Game
+            </button>
+
+            <div id="status">
+                Select a .gba file to continue.
+            </div>
+
         </div>
 
     </div>
 
+
+    <!-- =========================
+         EMULATOR CONTAINER
+         ========================= -->
+
     <div id="game"></div>
 
+
     <script>
-        let romFile = null;
+
+        let selectedRom = null;
         let romUrl = null;
+        let emulatorStarted = false;
+
 
         const romInput = document.getElementById("romInput");
+        const fileName = document.getElementById("fileName");
         const playButton = document.getElementById("playButton");
         const status = document.getElementById("status");
 
+        const menu = document.getElementById("menu");
+        const game = document.getElementById("game");
+
+
+        /*
+         * When the user chooses a GBA file
+         */
         romInput.addEventListener("change", function () {
-            if (this.files.length === 0) {
-                romFile = null;
-                status.textContent = "No GBA file selected.";
+
+            if (!this.files || this.files.length === 0) {
+
+                selectedRom = null;
+
+                fileName.textContent =
+                    "No GBA file selected.";
+
+                playButton.disabled = true;
+
+                status.textContent =
+                    "Select a .gba file to continue.";
+
                 return;
             }
 
-            romFile = this.files[0];
+
+            selectedRom = this.files[0];
+
+
+            /*
+             * Make sure it is actually a GBA file.
+             */
+            const fileNameLower =
+                selectedRom.name.toLowerCase();
+
+            if (!fileNameLower.endsWith(".gba")) {
+
+                selectedRom = null;
+
+                fileName.textContent =
+                    "Please select a .gba file.";
+
+                playButton.disabled = true;
+
+                status.textContent =
+                    "Only Game Boy Advance (.gba) files are supported.";
+
+                return;
+            }
+
+
+            fileName.textContent =
+                selectedRom.name;
+
+            playButton.disabled = false;
 
             status.textContent =
-                "Selected: " + romFile.name;
+                "Ready to launch.";
+
         });
 
+
+        /*
+         * Launch EmulatorJS
+         */
         playButton.addEventListener("click", function () {
 
-            if (!romFile) {
-                status.textContent = "Please choose a .gba file first.";
+            if (!selectedRom) {
                 return;
             }
 
-            // Create a temporary browser URL for the local ROM.
-            romUrl = URL.createObjectURL(romFile);
+            if (emulatorStarted) {
+                return;
+            }
 
-            // EmulatorJS configuration
+
+            emulatorStarted = true;
+
+
+            /*
+             * Create a temporary URL for the
+             * local GBA file.
+             */
+            romUrl =
+                URL.createObjectURL(selectedRom);
+
+
+            /*
+             * EmulatorJS configuration
+             */
             window.EJS_player = "#game";
+
             window.EJS_core = "mgba";
+
+            window.EJS_gameUrl = romUrl;
+
+            window.EJS_gameName =
+                selectedRom.name;
+
             window.EJS_color = "#000000";
 
             window.EJS_startOnLoaded = true;
 
-            window.EJS_gameUrl = romUrl;
-            window.EJS_gameName = romFile.name;
-
             window.EJS_pathtodata =
-                "https://cdn.emulatorjs.org/stable/data/";
+                "https://cdn.emulatorjs.org/latest/data/";
 
-            // Hide menu and show emulator
-            document.getElementById("menu").style.display = "none";
-            document.getElementById("game").style.display = "block";
 
-            // Load EmulatorJS
-            const script = document.createElement("script");
+            /*
+             * Hide menu
+             */
+            menu.style.display = "none";
 
-            script.src =
-                "https://cdn.emulatorjs.org/stable/data/loader.js";
+            /*
+             * Show emulator
+             */
+            game.style.display = "block";
 
-            document.body.appendChild(script);
+
+            /*
+             * Load EmulatorJS
+             */
+            const emulatorScript =
+                document.createElement("script");
+
+            emulatorScript.src =
+                "https://cdn.emulatorjs.org/latest/data/loader.js";
+
+            emulatorScript.onload = function () {
+
+                console.log(
+                    "EmulatorJS loaded."
+                );
+
+            };
+
+            emulatorScript.onerror = function () {
+
+                game.innerHTML = `
+                    <div style="
+                        color:white;
+                        background:#181818;
+                        width:100%;
+                        height:100%;
+                        display:flex;
+                        align-items:center;
+                        justify-content:center;
+                        text-align:center;
+                        padding:30px;
+                        font-family:Arial;
+                    ">
+                        <div>
+                            <h2>Emulator failed to load</h2>
+                            <p>
+                                Chrome could not load EmulatorJS.
+                            </p>
+                            <p>
+                                Try running this HTML through
+                                a local web server instead of
+                                opening the file directly.
+                            </p>
+                        </div>
+                    </div>
+                `;
+
+            };
+
+
+            document.body.appendChild(
+                emulatorScript
+            );
+
         });
+
     </script>
 
 </body>
