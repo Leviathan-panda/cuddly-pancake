@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0"
+  >
+
+  <title>Pokémon SacredGold / StormSilver</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #050505;
+      color: white;
+      font-family: "Press Start 2P", cursive;
+    }
+
+    /* =========================
+       GAME SELECTION MENU
+       ========================= */
+
+    #menu {
+      width: 100vw;
+      height: 100vh;
+
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+
+      text-align: center;
+      background:
+        radial-gradient(circle at center, #202020 0%, #050505 70%);
+    }
+
+    #menu h1 {
+      font-size: clamp(18px, 3vw, 32px);
+      margin: 0 20px 10px;
+      line-height: 1.5;
+    }
+
+    #menu p {
+      font-size: 10px;
+      opacity: 0.65;
+      margin: 0 20px 30px;
+    }
+
+    .gameButton {
+      width: min(360px, 80vw);
+      height: 70px;
+
+      margin: 10px;
+
+      border: 2px solid rgba(255, 255, 255, 0.25);
+      border-radius: 14px;
+
+      color: white;
+
+      font-family: "Press Start 2P", cursive;
+      font-size: 14px;
+
+      cursor: pointer;
+
+      transition:
+        transform 0.12s ease,
+        filter 0.12s ease;
+
+      box-shadow:
+        0 6px 20px rgba(0, 0, 0, 0.5);
+    }
+
+    .gameButton:hover {
+      filter: brightness(1.15);
+      transform: translateY(-2px);
+    }
+
+    .gameButton:active {
+      transform: scale(0.97);
+    }
+
+    #sacredgoldButton {
+      background: linear-gradient(
+        135deg,
+        #d6a300,
+        #8d6900
+      );
+    }
+
+    #stormsilverButton {
+      background: linear-gradient(
+        135deg,
+        #bfc4ca,
+        #626870
+      );
+    }
+
+    /* =========================
+       EMULATOR CONTAINER
+       ========================= */
+
+    #emulatorScreen {
+      display: none;
+
+      position: fixed;
+      inset: 0;
+
+      width: 100vw;
+      height: 100vh;
+
+      background: #000;
+    }
+
+    #game {
+      position: absolute;
+
+      /*
+       * Leave room for the top control bar.
+       */
+      top: 46px;
+      left: 0;
+
+      width: 100%;
+      height: calc(100% - 46px);
+
+      background: #000;
+    }
+
+    /* =========================
+       TOP CONTROL BAR
+       ========================= */
+
+    #controlBar {
+      position: fixed;
+
+      top: 0;
+      left: 0;
+
+      width: 100%;
+      height: 46px;
+
+      z-index: 9999;
+
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      padding: 0 10px;
+
+      background: rgba(15, 15, 15, 0.96);
+
+      border-bottom: 1px solid #333;
+    }
+
+    #gameTitle {
+      font-size: 10px;
+
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+
+      margin-right: 10px;
+    }
+
+    .controlButton {
+      height: 32px;
+
+      padding: 0 12px;
+
+      border: 1px solid #555;
+      border-radius: 7px;
+
+      background: #222;
+      color: white;
+
+      font-family: "Press Start 2P", cursive;
+      font-size: 8px;
+
+      cursor: pointer;
+    }
+
+    .controlButton:hover {
+      background: #333;
+    }
+
+    /* =========================
+       MOBILE / CHROMEBOOK
+       ========================= */
+
+    @media (max-width: 700px) {
+      #gameTitle {
+        font-size: 8px;
+      }
+
+      .controlButton {
+        font-size: 7px;
+        padding: 0 8px;
+      }
+    }
+  </style>
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
+    rel="stylesheet"
+  >
+</head>
+
+<body>
+
+  <!-- =========================
+       GAME SELECTION
+       ========================= -->
+
+  <div id="menu">
+
+    <h1>POKÉMON</h1>
+
+    <p>SACREDGOLD / STORMSILVER</p>
+
+    <button
+      id="sacredgoldButton"
+      class="gameButton"
+      onclick="startGame('sacredgold')"
+    >
+      SACREDGOLD
+    </button>
+
+    <button
+      id="stormsilverButton"
+      class="gameButton"
+      onclick="startGame('stormsilver')"
+    >
+      STORMSILVER
+    </button>
+
+  </div>
+
+
+  <!-- =========================
+       EMULATOR
+       ========================= -->
+
+  <div id="emulatorScreen">
+
+    <div id="controlBar">
+
+      <div id="gameTitle">
+        Pokémon
+      </div>
+
+      <div>
+
+        <button
+          class="controlButton"
+          onclick="toggleFullscreen()"
+        >
+          FULLSCREEN
+        </button>
+
+        <button
+          class="controlButton"
+          onclick="returnToMenu()"
+        >
+          MENU
+        </button>
+
+      </div>
+
+    </div>
+
+    <div id="game"></div>
+
+  </div>
+
+
+  <script>
+
+    /*
+     * =========================
+     * GAME CONFIGURATION
+     * =========================
+     */
+
+    const games = {
+
+      sacredgold: {
+        name: "Pokémon SacredGold",
+
+        /*
+         * Put your own legally obtained game file URL here.
+         */
+        url: "YOUR_SACREDGOLD_NDS_URL"
+      },
+
+      stormsilver: {
+        name: "Pokémon StormSilver",
+
+        /*
+         * Put your own legally obtained game file URL here.
+         */
+        url: "YOUR_STORMSILVER_NDS_URL"
+      }
+
+    };
+
+
+    /*
+     * =========================
+     * START GAME
+     * =========================
+     */
+
+    function startGame(game) {
+
+      const selectedGame = games[game];
+
+      if (!selectedGame) {
+        alert("Game could not be found.");
+        return;
+      }
+
+      /*
+       * Hide menu
+       */
+      document.getElementById("menu").style.display = "none";
+
+      /*
+       * Show emulator
+       */
+      document.getElementById("emulatorScreen").style.display = "block";
+
+      /*
+       * Update title
+       */
+      document.getElementById("gameTitle").textContent =
+        selectedGame.name;
+
+
+      /*
+       * =========================
+       * EMULATORJS CONFIG
+       * =========================
+       */
+
+      EJS_player = "#game";
+
+      /*
+       * Nintendo DS
+       */
+      EJS_core = "melonds";
+
+      /*
+       * Game
+       */
+      EJS_gameUrl = selectedGame.url;
+
+      /*
+       * EmulatorJS files
+       */
+      EJS_pathtodata =
+        "https://cdn.emulatorjs.org/stable/data/";
+
+      /*
+       * Automatically start
+       */
+      EJS_startOnLoaded = true;
+
+      /*
+       * Black theme
+       */
+      EJS_color = "#000000";
+
+      /*
+       * Game title
+       */
+      EJS_gameName = selectedGame.name;
+
+      /*
+       * Desktop/Chromebook interface
+       */
+      EJS_browserMode = "desktop";
+
+
+      /*
+       * =========================
+       * LOAD EMULATORJS
+       * =========================
+       */
+
+      const script = document.createElement("script");
+
+      script.src =
+        "https://cdn.emulatorjs.org/stable/data/loader.js";
+
+      script.onload = function () {
+        console.log(
+          "EmulatorJS loaded:",
+          selectedGame.name
+        );
+      };
+
+      script.onerror = function () {
+
+        alert(
+          "EmulatorJS could not be loaded. Check your internet connection."
+        );
+
+      };
+
+      document.body.appendChild(script);
+    }
+
+
+    /*
+     * =========================
+     * FULLSCREEN
+     * =========================
+     */
+
+    function toggleFullscreen() {
+
+      const element =
+        document.getElementById("emulatorScreen");
+
+      if (!document.fullscreenElement) {
+
+        if (element.requestFullscreen) {
+          element.requestFullscreen();
+        }
+
+      } else {
+
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        }
+
+      }
+    }
+
+
+    /*
+     * =========================
+     * RETURN TO MENU
+     * =========================
+     */
+
+    function returnToMenu() {
+
+      /*
+       * Reloading the page is the safest way
+       * to completely reset EmulatorJS.
+       */
+      location.reload();
+
+    }
+
+  </script>
+
+</body>
+</html>
