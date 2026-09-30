@@ -386,7 +386,23 @@
        * LOAD EMULATORJS
        * =========================
        */
+console.log("Game URL:", EJS_gameUrl);
+console.log("Core:", EJS_core);
+console.log("Data path:", EJS_pathtodata);
 
+fetch(EJS_gameUrl, {
+  method: "HEAD"
+})
+  .then(response => {
+    console.log("ROM HTTP status:", response.status);
+    console.log("ROM content type:", response.headers.get("content-type"));
+    console.log("ROM content length:", response.headers.get("content-length"));
+  })
+  .catch(error => {
+    console.error("ROM fetch failed:", error);
+  });
+
+      
       const script = document.createElement("script");
 
       script.src =
