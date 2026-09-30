@@ -1,11 +1,10 @@
-```html
 <!DOCTYPE html>
 <html>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>Pokémon HeartGold / SoulSilver</title>
+  <title>Pokémon SacredGold / StormSilver</title>
 
   <style>
     html,
@@ -60,19 +59,19 @@
       box-shadow: 0 0 10px 2px #000;
     }
 
-    #heartgoldButton {
+    #sacredgoldButton {
       background-color: #d6a300;
     }
 
-    #heartgoldButton:hover {
+    #sacredgoldButton:hover {
       background-color: #f0bd00;
     }
 
-    #soulsilverButton {
+    #stormsilverButton {
       background-color: #9ca3af;
     }
 
-    #soulsilverButton:hover {
+    #stormsilverButton:hover {
       background-color: #c0c5cc;
     }
   </style>
@@ -91,17 +90,17 @@
     <h1>Choose Your Game</h1>
 
     <button
-      id="heartgoldButton"
+      id="sacredgoldButton"
       class="gameButton"
-      onclick="startGame('heartgold')"
+      onclick="startGame('sacredgold')"
     >
       HEARTGOLD
     </button>
 
     <button
-      id="soulsilverButton"
+      id="stormsilverButton"
       class="gameButton"
-      onclick="startGame('soulsilver')"
+      onclick="startGame('stormsilver')"
     >
       SOULSILVER
     </button>
@@ -130,19 +129,19 @@
       /*
        * Choose game
        */
-      if (game === "heartgold") {
+      if (game === "sacredgold") {
 
         EJS_gameUrl =
-          "https://YOUR-DOMAIN.example/pokemon-heartgold.nds";
+          "https://pub-c0f75560b45a4f46a002af7e90e29a9a.r2.dev/SacredGold.nds";
 
-        EJS_gameName = "Pokémon HeartGold";
+        EJS_gameName = "Pokémon SacredGold";
 
-      } else if (game === "soulsilver") {
+      } else if (game === "stormsilver") {
 
         EJS_gameUrl =
-          "https://YOUR-DOMAIN.example/pokemon-soulsilver.nds";
+          "https://pub-c0f75560b45a4f46a002af7e90e29a9a.r2.dev/StormSilver.nds";
 
-        EJS_gameName = "Pokémon SoulSilver";
+        EJS_gameName = "Pokémon StormSilver";
 
       }
 
@@ -167,5 +166,14 @@
         "https://cdn.emulatorjs.org/stable/data/loader.js";
 
       script.onload = function () {
-        console.log("
-```
+        console.log("EmulatorJS loaded."); 
+      }; 
+      
+      script.onerror = function () { 
+        alert( "EmulatorJS could not be loaded. Check your internet connection." );
+      }; 
+      document.body.appendChild(script);
+    } 
+  </script> 
+</body> 
+</html>
